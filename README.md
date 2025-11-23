@@ -73,6 +73,22 @@ npm install stun
 node stun.js
 ```
 
+## Example Output
+
+```text
+Starting STUN NAT Type Detection...
+-----------------------------------
+Local Network IP: 192.168.1.50
+Local Port: 50669
+Detected Endpoint Independent Mapping. Probing for Cone Subtype...
+
+=== Final Result ===
+NAT Type:      Port Restricted Cone NAT
+Reason:        Endpoint Independent Mapping. Port Preserved.
+Public IP:     84.222.43.44
+Public Port:   50669
+```
+
 ## How it Works
 
 The tool sends Binding Requests to multiple STUN servers (Google, Stunprotocol, etc.) to determine:
