@@ -1,0 +1,21 @@
+{
+  "name": "nat-info",
+  "version": "1.0.0",
+  "description": "NAT detection tool using STUN protocol",
+  "main": "stun.js",
+  "scripts": {
+    "start": "node stun.js"
+  },
+  "keywords": [
+    "stun",
+    "nat",
+    "p2p",
+    "webrtc",
+    "networking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "stun": "^2.1.0"
+  }
+}

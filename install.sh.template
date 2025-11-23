@@ -1,0 +1,63 @@
+#!/bin/sh
+set -e
+
+DOMAIN="{{DOMAIN}}"
+BINARY_NAME="nat-info"
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+
+# Map architectures
+case "${ARCH}" in
+    x86_64) ARCH="amd64" ;;
+    aarch64|arm64) ARCH="arm64" ;;
+esac
+
+# Check for supported platforms
+if [ "$OS" != "linux" ] && [ "$OS" != "darwin" ]; then
+    echo "Error: Unsupported OS: $OS"
+    exit 1
+fi
+
+if [ "$ARCH" != "amd64" ] && [ "$ARCH" != "arm64" ]; then
+    echo "Error: Unsupported Architecture: $ARCH"
+    exit 1
+fi
+
+FULL_BINARY_NAME="${BINARY_NAME}-${OS}-${ARCH}"
+DOWNLOAD_URL="${DOMAIN}/${FULL_BINARY_NAME}"
+
+# Create a temp file
+# Portable mktemp attempt
+if [ -d "/tmp" ]; then
+    TMP_FILE="/tmp/${BINARY_NAME}-${$}"
+else
+    TMP_FILE="./${BINARY_NAME}-${$}"
+fi
+
+# Cleanup function
+cleanup() {
+    rm -f "${TMP_FILE}"
+}
+trap cleanup EXIT
+
+# Download
+echo "Downloading ${FULL_BINARY_NAME} from ${DOMAIN}..."
+if command -v curl >/dev/null 2>&1; then
+    STATUS=$(curl -w "%{http_code}" -fsSL -o "${TMP_FILE}" "${DOWNLOAD_URL}")
+    if [ "$STATUS" != "200" ] && [ ! -f "${TMP_FILE}" ]; then
+        echo "Error: Failed to download binary (HTTP $STATUS)"
+        exit 1
+    fi
+elif command -v wget >/dev/null 2>&1; then
+    wget -qO "${TMP_FILE}" "${DOWNLOAD_URL}"
+else
+    echo "Error: curl or wget is required"
+    exit 1
+fi
+
+chmod +x "${TMP_FILE}"
+
+echo "Running ${BINARY_NAME}..."
+echo "=========================="
+"${TMP_FILE}" "$@"
+
